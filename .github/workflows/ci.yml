@@ -24,7 +24,7 @@ jobs:
           - 6379:6379
 
     env:
-      - SIDEKIQ_VERSION: "~> ${{ matrix.sidekiq_version }}"
+      SIDEKIQ_VERSION: "~> ${{ matrix.sidekiq_version }}"
     steps:
     - name: Update packages
       run: |
