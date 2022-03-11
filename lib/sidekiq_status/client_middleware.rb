@@ -1,12 +1,12 @@
 # -*- encoding : utf-8 -*-
 
 require 'active_support'
-require 'active_support/dependencies'
+require 'active_support/core_ext/string/inflections'
 
 module SidekiqStatus
   class ClientMiddleware
     def call(worker, item, queue, redis_pool = nil)
-      worker = normalize_worker(worker)
+      worker = worker.constantize if worker.is_a?(String)
       return yield unless worker < SidekiqStatus::Worker
 
       # Don't start reporting status if the job is scheduled for the future
@@ -38,13 +38,6 @@ module SidekiqStatus
     rescue Exception => exc
       SidekiqStatus::Container.load(jid).delete rescue nil
       raise exc
-    end
-
-    def normalize_worker(worker)
-      return worker unless worker.is_a?(String)
-      return worker.constantize unless ActiveSupport::Dependencies.respond_to?(:constantize)
-
-      ActiveSupport::Dependencies.constantize(worker)
     end
   end
 end
